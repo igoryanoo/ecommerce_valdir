@@ -56,7 +56,7 @@ const fetchProducts = async () => {
       stock: product.stock
     }))
   } catch (error) {
-    console.error("Erro ao buscar motos:", error)
+    console.error("Erro ao buscar notebooks:", error)
     products.value = []
   } finally {
     isLoading.value = false

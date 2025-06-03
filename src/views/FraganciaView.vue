@@ -19,7 +19,7 @@
       <p class="text-xl text-gray-500">Nenhum produto encontrado.</p>
     </div>
 
-    <div v-if="!isLoading && products.length > 0 && totalPages > 1" class="flex justify-center items-center gap-4 mt-10">
+    <div v-if="!isLoading && products.length > 0" class="flex justify-center items-center gap-4 mt-10">
       <button @click="previousProducts" :disabled="skip === 0"
               class="btn bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
         Anterior
@@ -30,9 +30,6 @@
         Próximo
       </button>
     </div>
-     <div v-else-if="fetchError" class="text-center py-10 text-red-600">
-        <p>{{ fetchError }}</p>
-     </div>
   </div>
 </template>
 
@@ -45,52 +42,34 @@ const products = ref([])
 const skip = ref(0)
 const limit = 10
 const isLoading = ref(false)
-const fetchError = ref(null);
-
 
 const fetchProducts = async () => {
   isLoading.value = true
-  fetchError.value = null;
   try {
     const response = await axios.get('https://dummyjson.com/products/category/fragrances')
-    products.value = response.data.products.map(product => ({ 
-      id: parseInt(product.id, 10),
+    products.value = response.data.products.map(product => ({
+      id: product.id,
       title: product.title,
       thumbnail: product.thumbnail,
       category: product.category,
-      price: parseFloat(product.price),
-      stock: parseInt(product.stock, 10)
+      price: product.price,
+      stock: product.stock
     }))
   } catch (error) {
-    console.error("Erro ao buscar fragrâncias:", error)
-    fetchError.value = "Falha ao carregar fragrâncias.";
-    products.value = [] 
+    console.error("Erro ao buscar notebooks:", error)
+    products.value = []
   } finally {
     isLoading.value = false
   }
 }
 
-const paginatedProducts = computed(() => {
-  return products.value.slice(skip.value, skip.value + limit); 
-});
-
-const totalPages = computed(() => Math.ceil(products.value.length / limit)) 
+const paginatedProducts = computed(() => products.value.slice(skip.value, skip.value + limit))
+const totalPages = computed(() => Math.ceil(products.value.length / limit))
 const currentPage = computed(() => Math.floor(skip.value / limit) + 1)
-const isLastPage = computed(() => skip.value + limit >= products.value.length) 
+const isLastPage = computed(() => skip.value + limit >= products.value.length)
 
-const nextProducts = () => {
-  if (!isLastPage.value) {
-    skip.value += limit
-  }
-}
+const nextProducts = () => !isLastPage.value && (skip.value += limit)
+const previousProducts = () => skip.value >= limit && (skip.value -= limit)
 
-const previousProducts = () => {
-  if (skip.value >= limit) {
-    skip.value -= limit
-  }
-}
-
-onMounted(async () => {
-  await fetchProducts();
-});
+onMounted(fetchProducts)
 </script>
