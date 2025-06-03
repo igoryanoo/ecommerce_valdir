@@ -54,7 +54,7 @@
           </div>
 
           <button class="w-full bg-green-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-green-700 transition-colors text-lg">
-            Adicionar ao Carrinho
+            Comprar
           </button>
         </div>
       </div>
